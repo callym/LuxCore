@@ -174,10 +174,10 @@ bool cudaKernelPersistentCache::CompilePTX(const vector<string> &kernelsParamete
 
 			// The use of boost::filesystem::path is required for UNICODE support: fileName
 			// is supposed to be UTF-8 encoded.
-			boost::filesystem::ofstream file(boost::filesystem::path(fileName),
-					boost::filesystem::ofstream::out |
-					boost::filesystem::ofstream::binary |
-					boost::filesystem::ofstream::trunc);
+			std::ofstream file(std::move(fileName),
+					std::ofstream::out |
+					std::ofstream::binary |
+					std::ofstream::trunc);
 
 			// Write the binary hash
 			const u_int hashBin = oclKernelPersistentCache::HashBin(*ptx, *ptxSize);
@@ -206,8 +206,8 @@ bool cudaKernelPersistentCache::CompilePTX(const vector<string> &kernelsParamete
 
 			// The use of boost::filesystem::path is required for UNICODE support: fileName
 			// is supposed to be UTF-8 encoded.
-			boost::filesystem::ifstream file(boost::filesystem::path(fileName),
-					boost::filesystem::ifstream::in | boost::filesystem::ifstream::binary);
+			std::ifstream file(std::move(fileName),
+					std::ifstream::in | std::ifstream::binary);
 
 			// Read the binary hash
 			u_int hashBin;

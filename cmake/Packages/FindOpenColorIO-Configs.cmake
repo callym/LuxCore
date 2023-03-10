@@ -1,0 +1,1 @@
+git(OpenColorIO-Configs imageworks/OpenColorIO-Configs v1.0_r2)

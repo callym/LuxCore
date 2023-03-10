@@ -1,0 +1,1 @@
+git(minizip-ng zlib-ng/minizip-ng 3.0.8)

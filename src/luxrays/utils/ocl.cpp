@@ -301,12 +301,12 @@ cl_program oclKernelPersistentCache::Compile(cl_context context, cl_device_id de
 			// Add the kernel to the cache
 			boost::filesystem::create_directories(dirPath);
 
-			// The use of boost::filesystem::path is required for UNICODE support: fileName
+			// The use of std::move is required for UNICODE support: fileName
 			// is supposed to be UTF-8 encoded.
-			boost::filesystem::ofstream file(boost::filesystem::path(fileName),
-					boost::filesystem::ofstream::out |
-					boost::filesystem::ofstream::binary |
-					boost::filesystem::ofstream::trunc);
+			std::ofstream file(std::move(fileName),
+					std::ofstream::out |
+					std::ofstream::binary |
+					std::ofstream::trunc);
 
 			// Write the binary hash
 			const u_int hashBin = HashBin(bins, binsSizes[0]);
@@ -335,10 +335,10 @@ cl_program oclKernelPersistentCache::Compile(cl_context context, cl_device_id de
 
 			vector<char> kernelBin(kernelSize);
 
-			// The use of boost::filesystem::path is required for UNICODE support: fileName
+			// The use of std::move is required for UNICODE support: fileName
 			// is supposed to be UTF-8 encoded.
-			boost::filesystem::ifstream file(boost::filesystem::path(fileName),
-					boost::filesystem::ifstream::in | boost::filesystem::ifstream::binary);
+			std::ifstream file(std::move(fileName),
+					std::ifstream::in | std::ifstream::binary);
 
 			// Read the binary hash
 			u_int hashBin;

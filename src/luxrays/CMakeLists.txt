@@ -208,8 +208,8 @@ set(LUXRAYS_SRCS
 	${LuxRays_SOURCE_DIR}/src/luxrays/utils/thread.cpp
 	${LuxRays_SOURCE_DIR}/src/luxrays/utils/ply/rply.cpp
 	${LuxRays_SOURCE_DIR}/src/luxrays/utils/properties.cpp
-	${LuxRays_SOURCE_DIR}/deps/cuew/src/cuew.cpp
-	${LuxRays_SOURCE_DIR}/deps/clew/src/clew.cpp
+	${cuew_SOURCE_DIR}/src/cuew.c
+	${clew_SOURCE_DIR}/src/clew.c
 )
 SOURCE_GROUP("Source Files\\LuxRays Library" FILES ${LUXRAYS_SRCS})
 

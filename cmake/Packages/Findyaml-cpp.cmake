@@ -1,0 +1,1 @@
+git(yaml-cpp jbeder/yaml-cpp yaml-cpp-0.7.0)

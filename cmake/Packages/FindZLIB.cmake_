@@ -1,0 +1,5 @@
+git(ZLIB zlib-ng/zlib-ng 2.0.6)
+
+set(BUILD_SHARED_LIBS OFF)
+
+set(ZLIB_STATIC_LIBRARY ON)

@@ -103,7 +103,7 @@ macro(get_debug_names PREFIX)
   endforeach(i)
 endmacro(get_debug_names)
 
-# Add the parent dir from DIR to VAR 
+# Add the parent dir from DIR to VAR
 macro(add_parent_dir VAR DIR)
   get_filename_component(${DIR}_TEMP "${${DIR}}/.." ABSOLUTE)
   set(${VAR} ${${VAR}} ${${DIR}_TEMP})
@@ -170,3 +170,28 @@ MACRO(findpkg_framework fwk)
     ENDFOREACH(dir)
   ENDIF(APPLE)
 ENDMACRO(findpkg_framework)
+
+macro(git_declare name repository tag)
+  include(FetchContent)
+
+  set(repo ${repository})
+
+  if(NOT ${repo} MATCHES "^https://")
+    set(repo "https://github.com/${repository}.git")
+  endif()
+
+  FetchContent_Declare(
+    ${name}
+    GIT_REPOSITORY ${repo}
+    GIT_TAG ${tag}
+    GIT_PROGRESS TRUE
+    GIT_SHALLOW 1
+    OVERRIDE_FIND_PACKAGE
+  )
+endmacro()
+
+macro(git name repository tag)
+  git_declare(${name} ${repository} ${tag})
+
+  FetchContent_MakeAvailable(${name})
+endmacro()

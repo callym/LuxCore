@@ -152,7 +152,7 @@ set(LUXCORE_LIB_SRCS
 
 if (BUILD_LUXCORE_DLL)
 	add_library(luxcore SHARED ${LUXCORE_LIB_SRCS} ${LUX_PARSER_SRC})
-	target_link_libraries(luxcore PRIVATE slg-core slg-film slg-kernels luxrays bcd opensubdiv openvdb opencolorio ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
+	target_link_libraries(luxcore PRIVATE slg-core slg-film slg-kernels luxrays bcd opensubdiv openvdb ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
 else()
 	add_library(luxcore STATIC ${LUXCORE_LIB_SRCS} ${LUX_PARSER_SRC})
 endif()
@@ -176,24 +176,22 @@ set(PYLUXCORE_SRCS
 add_library(pyluxcore MODULE ${PYLUXCORE_SRCS} ${LUXCORE_LIB_SRCS} ${LUX_PARSER_SRC})
 
 include_directories(${OpenVDB_INCLUDE_DIRS})
-include_directories(${LuxRays_SOURCE_DIR}/deps/opencolorio-2.0.0/include)
+include_directories(${LuxRays_SOURCE_DIR}/deps/opencolorio/include)
 
 if(APPLE)
-	target_link_libraries(pyluxcore -Wl,-undefined -Wl,dynamic_lookup slg-core slg-film slg-kernels luxrays bcd opensubdiv openvdb opencolorio expat ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
+	target_link_libraries(pyluxcore -Wl,-undefined -Wl,dynamic_lookup slg-core slg-film slg-kernels luxrays bcd opensubdiv openvdb expat ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
     SET_TARGET_PROPERTIES(pyluxcore PROPERTIES XCODE_ATTRIBUTE_DEPLOYMENT_POSTPROCESSING NO) # exclude pylux from strip, not possible
 else()
-        target_link_libraries(pyluxcore PRIVATE slg-core slg-film slg-kernels luxrays bcd opensubdiv ${OpenVDB_LIBRARIES} opencolorio ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
+	target_link_libraries(pyluxcore PRIVATE slg-core slg-film slg-kernels luxrays bcd opensubdiv ${OpenVDB_LIBRARIES} ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
 endif()
 
 set_target_properties(pyluxcore PROPERTIES PREFIX "")
 if(MSVC)
 	set_target_properties(pyluxcore PROPERTIES SUFFIX ".pyd")
-endif(MSVC)
-
-################################################################################
+endif(MSVC)# ###############################################################################
 #
 # Predefines
 #
-################################################################################
+# ###############################################################################
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../lib")
