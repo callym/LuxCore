@@ -74,11 +74,6 @@ include_directories(
     ${imath_BINARY_DIR}/config
 )
 
-# find_package(ZLIB REQUIRED)
-
-# # add_library(ZLIB::ZLIB ALIAS zlib)
-
-# # add_library(ZLIB::ZLIB ALIAS zlibstatic)
 find_package(OpenEXR REQUIRED)
 
 function(subproject_version subproject_name VERSION_VAR)
@@ -149,11 +144,12 @@ include_directories(${bcd_SOURCE_DIR}/include)
 find_package(json REQUIRED)
 include_directories(${json_SOURCE_DIR}/include)
 
-find_package(cuew REQUIRED)
+find_package(CUEW REQUIRED)
 include_directories(${cuew_SOURCE_DIR}/include)
 
-find_package(clew REQUIRED)
-include_directories(${clew_SOURCE_DIR}/include)
+find_package(CLEW REQUIRED)
+set(CLEW_INCLUDE_DIR ${clew_SOURCE_DIR}/include)
+include_directories(${CLEW_INCLUDE_DIR})
 
 find_package(LUT REQUIRED)
 include_directories(${lut_SOURCE_DIR})
@@ -170,10 +166,6 @@ if(NOT APPLE)
 
     find_package(Python3 COMPONENTS Development)
 
-    # message(STATUS "Python3_INCLUDE_DIRS: ${Python3_INCLUDE_DIRS}")
-    # message(STATUS "Python3_LIBRARY_DIRS: ${Python3_LIBRARY_DIRS}")
-    # message(STATUS "Python3_LIBRARIES: ${Python3_LIBRARIES}")
-    # message(FATAL_ERROR "")
     include_directories(${Python3_INCLUDE_DIRS})
     link_directories(${Python3_LIBRARY_DIRS})
     link_libraries(${Python3_LIBRARIES})
@@ -185,23 +177,16 @@ find_program(PYSIDE_UIC NAMES pyside-uic pyside2-uic pyside6-uic
 
 include_directories(${PYTHON_INCLUDE_DIRS})
 
-# OpenGL
 find_package(OpenGL)
 
 if(OPENGL_FOUND)
     include_directories(${OPENGL_INCLUDE_PATH})
 endif()
 
-# # Intel TBB
-# find_package(TBB REQUIRED)
-# include_directories(${TBB_INCLUDE_PATH})
-
-# Intel Oidn
 find_package(Oidn REQUIRED)
 include_directories(${OIDN_INCLUDE_PATH})
 set(OIDN_LIBRARY OpenImageDenoise)
 
-# Intel Embree
 find_package(Embree REQUIRED)
 include_directories(${EMBREE_INCLUDE_PATH})
 set(EMBREE_LIBRARY embree)
@@ -209,6 +194,10 @@ set(EMBREE_LIBRARY embree)
 find_package(Blosc REQUIRED)
 include_directories(${BLOSC_INCLUDE_PATH})
 set(BLOSC_LIBRARY blosc_static)
+
+find_package(opensubdiv REQUIRED)
+include_directories(${opensubdiv_SOURCE_DIR})
+set(OSD_LINK_TARGET osd_static_gpu osd_static_cpu)
 
 # OpenMP
 if(NOT APPLE)

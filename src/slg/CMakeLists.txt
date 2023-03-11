@@ -1,36 +1,36 @@
-################################################################################
+# ###############################################################################
 # Copyright 1998-2020 by authors (see AUTHORS.txt)
 #
-#   This file is part of LuxCoreRender.
+# This file is part of LuxCoreRender.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-################################################################################
+# ###############################################################################
 
-#############################################################################
-#############################################################################
-#############################################################################
-###
-### SLG Library
-###
-#############################################################################
-#############################################################################
-#############################################################################
+# ############################################################################
+# ############################################################################
+# ############################################################################
+# ##
+# ## SLG Library
+# ##
+# ############################################################################
+# ############################################################################
+# ############################################################################
 
-#############################################################################
+# ############################################################################
 #
 # SLG Docs
 #
-#############################################################################
+# ############################################################################
 
 find_package(Doxygen)
 
@@ -40,9 +40,9 @@ if(DOXYGEN_FOUND)
 	# Generate doxygen.template
 	set(DOXYGEN_SLG_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/../../doxygen/slg.template)
 	configure_file(
-	  "${DOXYGEN_SLG_TEMPLATE}.in"
-	  "${DOXYGEN_SLG_TEMPLATE}"
-	  )
+		"${DOXYGEN_SLG_TEMPLATE}.in"
+		"${DOXYGEN_SLG_TEMPLATE}"
+	)
 
 	set(DOXYGEN_SLG_INPUT ${CMAKE_CURRENT_BINARY_DIR}/../../doxygen-slg.conf)
 	set(DOXYGEN_SLG_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/../../doc/slg)
@@ -51,18 +51,20 @@ if(DOXYGEN_FOUND)
 	message(STATUS "Doxygen SLG output: " ${DOXYGEN_SLG_OUTPUT})
 
 	if(DOXYGEN_DOT_FOUND)
-			message(STATUS "Found dot")
-			set(DOXYGEN_DOT_CONF "HAVE_DOT = YES")
+		message(STATUS "Found dot")
+		set(DOXYGEN_DOT_CONF "HAVE_DOT = YES")
 	endif(DOXYGEN_DOT_FOUND)
 
 	add_custom_command(
 		OUTPUT ${DOXYGEN_SLG_OUTPUT}
+
 		# Creating custom doxygen-luxrays.conf
 		COMMAND mkdir -p ${DOXYGEN_SLG_OUTPUT_DIR}
 		COMMAND cp ${DOXYGEN_SLG_TEMPLATE} ${DOXYGEN_SLG_INPUT}
-		COMMAND echo "INPUT = " ${CMAKE_CURRENT_SOURCE_DIR}/../../include/slg  ${CMAKE_CURRENT_SOURCE_DIR}/../../src/slg >> ${DOXYGEN_SLG_INPUT}
+		COMMAND echo "INPUT = " ${CMAKE_CURRENT_SOURCE_DIR}/../../include/slg ${CMAKE_CURRENT_SOURCE_DIR}/../../src/slg >> ${DOXYGEN_SLG_INPUT}
 		COMMAND echo "OUTPUT_DIRECTORY = " ${DOXYGEN_SLG_OUTPUT_DIR} >> ${DOXYGEN_SLG_INPUT}
 		COMMAND echo ${DOXYGEN_DOT_CONF} >> ${DOXYGEN_SLG_INPUT}
+
 		# Launch doxygen
 		COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_SLG_INPUT}
 		DEPENDS ${DOXYGEN_SLG_TEMPLATE}
@@ -72,9 +74,8 @@ if(DOXYGEN_FOUND)
 	add_custom_target(apidoc_slg DEPENDS ${DOXYGEN_SLG_OUTPUT})
 endif(DOXYGEN_FOUND)
 
-###########################################################################
-
-link_directories (${LuxRays_LIB_DIR})
+# ##########################################################################
+link_directories(${LuxRays_LIB_DIR})
 
 add_definitions(-DCPP_API_EXPORTS ${VISIBILITY_FLAGS}) # for controlling visibility
 
@@ -134,62 +135,6 @@ SOURCE_GROUP("Source Files\\OpenVDB Library" FILES ${OPENVDB_SRCS})
 
 include_directories(${OpenVDB_INCLUDE_DIRS})
 
-# ##########################################################################
-#
-# OpenSubdiv files
-#
-# ##########################################################################
-set(OPENSUBDIV_SRCS
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/version.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/bilinearPatchBuilder.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/catmarkPatchBuilder.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/error.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/loopPatchBuilder.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/patchBasis.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/patchBuilder.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/patchDescriptor.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/patchMap.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/patchTable.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/patchTableFactory.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/ptexIndices.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/stencilTable.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/stencilTableFactory.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/stencilBuilder.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/topologyDescriptor.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/topologyRefiner.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/far/topologyRefinerFactory.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/osd/cpuEvaluator.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/osd/cpuKernel.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/osd/cpuPatchTable.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/osd/cpuVertexBuffer.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/sdc/crease.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/sdc/typeTraits.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/vtr/fvarLevel.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/vtr/fvarRefinement.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/vtr/level.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/vtr/quadRefinement.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/vtr/refinement.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/vtr/sparseSelector.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/vtr/triRefinement.cpp
-	${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/version.cpp
-)
-
-if(OPENMP_FOUND)
-	set(OPENSUBDIV_SRCS
-		${OPENSUBDIV_SRCS}
-		${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/osd/ompEvaluator.cpp
-		${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0/opensubdiv/osd/ompKernel.cpp
-	)
-endif()
-
-SOURCE_GROUP("Source Files\\OpenSubdiv Library" FILES ${OPENSUBDIV_SRCS})
-
-include_directories(${LuxRays_SOURCE_DIR}/deps/opensubdiv-3.4.0)
-
-# Required by VisualStudio to have M_PI defined
-add_definitions("-D_USE_MATH_DEFINES")
-
-add_library(opensubdiv STATIC ${OPENSUBDIV_SRCS})
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	add_definitions("-DHAVE_GETRANDOM")
 	add_definitions("-DUSE_SSE")
@@ -617,6 +562,8 @@ add_library(slg-core STATIC ${SLG_CORE_SRCS})
 target_link_libraries(slg-core PRIVATE Iex Imath OpenEXR IlmThread)
 target_link_libraries(slg-core PRIVATE OpenColorIO)
 target_link_libraries(slg-core PRIVATE OpenImageIO)
+target_link_libraries(slg-core PRIVATE OpenImageIO)
+target_link_libraries(slg-core PRIVATE ${OSD_LINK_TARGET})
 
 # ############################################################################
 #
@@ -823,10 +770,8 @@ set(SLG_FILM_SRCS
 )
 SOURCE_GROUP("Source Files\\SLG Film Library" FILES ${SLG_FILM_SRCS})
 
-add_library(slg-film STATIC ${SLG_FILM_SRCS}) # ##########################################################################
-#
+add_library(slg-film STATIC ${SLG_FILM_SRCS}) # ###########################################################################
 # Predefines
 #
 # ##########################################################################
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../lib")
