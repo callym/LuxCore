@@ -32,6 +32,27 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}/include/OpenImageIO
 )
 
+# Find Boost
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_MINIMUM_VERSION "1.56.0")
+
+# For Windows builds, PYTHON_V must be defined as "3x" (x=Python minor version, e.g. "35")
+# For other platforms, specifying python minor version is not needed
+set(LUXRAYS_BOOST_COMPONENTS thread program_options filesystem serialization iostreams regex system python${PYTHON_V} chrono serialization numpy${PYTHON_V})
+find_package(Boost REQUIRED COMPONENTS ${LUXRAYS_BOOST_COMPONENTS})
+
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
+
+# Don't use old boost versions interfaces
+ADD_DEFINITIONS(-DBOOST_FILESYSTEM_NO_DEPRECATED)
+
+if(Boost_USE_STATIC_LIBS)
+    ADD_DEFINITIONS(-DBOOST_STATIC_LIB)
+    ADD_DEFINITIONS(-DBOOST_PYTHON_STATIC_LIB)
+endif()
+
 # Find threading library
 find_package(Threads REQUIRED)
 
@@ -98,7 +119,13 @@ add_library(expat::expat ALIAS expat)
 find_package(yaml-cpp REQUIRED)
 
 find_package(pystring REQUIRED)
-add_library(pystring::pystring ALIAS pystring)
+add_library(
+    pystringstatic
+    STATIC
+    ${pystring_SOURCE_DIR}/pystring.cpp
+    ${pystring_SOURCE_DIR}/pystring.h
+)
+add_library(pystring::pystring ALIAS pystringstatic)
 
 find_package(minizip-ng REQUIRED)
 add_library(MINIZIP::minizip-ng ALIAS minizip)
@@ -158,47 +185,6 @@ find_program(PYSIDE_UIC NAMES pyside-uic pyside2-uic pyside6-uic
 
 include_directories(${PYTHON_INCLUDE_DIRS})
 
-# Find Boost
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-set(BOOST_ROOT "${BOOST_SEARCH_PATH}")
-
-# set(Boost_DEBUG                 ON)
-set(Boost_MINIMUM_VERSION "1.56.0")
-
-# For Windows builds, PYTHON_V must be defined as "3x" (x=Python minor version, e.g. "35")
-# For other platforms, specifying python minor version is not needed
-set(LUXRAYS_BOOST_COMPONENTS thread program_options filesystem serialization iostreams regex system python${PYTHON_V} chrono serialization numpy${PYTHON_V})
-find_package(Boost ${Boost_MINIMUM_VERSION} COMPONENTS ${LUXRAYS_BOOST_COMPONENTS})
-
-if(NOT Boost_FOUND)
-    # Try again with the other type of libs
-    if(Boost_USE_STATIC_LIBS)
-        set(Boost_USE_STATIC_LIBS OFF)
-    else()
-        set(Boost_USE_STATIC_LIBS ON)
-    endif()
-
-    # The following line is necessary with CMake 3.18.0 to find static libs on Windows
-    unset(Boost_LIB_PREFIX)
-    message(STATUS "Re-trying with link static = ${Boost_USE_STATIC_LIBS}")
-    find_package(Boost ${Boost_MINIMUM_VERSION} COMPONENTS ${LUXRAYS_BOOST_COMPONENTS})
-endif()
-
-if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-    link_directories(${Boost_LIBRARY_DIRS})
-
-    # Don't use old boost versions interfaces
-    ADD_DEFINITIONS(-DBOOST_FILESYSTEM_NO_DEPRECATED)
-
-    if(Boost_USE_STATIC_LIBS)
-        ADD_DEFINITIONS(-DBOOST_STATIC_LIB)
-        ADD_DEFINITIONS(-DBOOST_PYTHON_STATIC_LIB)
-    endif()
-endif()
-
 # OpenGL
 find_package(OpenGL)
 
@@ -206,37 +192,23 @@ if(OPENGL_FOUND)
     include_directories(${OPENGL_INCLUDE_PATH})
 endif()
 
-# Intel Embree
-set(EMBREE_ROOT "${EMBREE_SEARCH_PATH}")
-find_package(Embree REQUIRED)
-
-if(EMBREE_FOUND)
-    include_directories(${EMBREE_INCLUDE_PATH})
-endif()
+# # Intel TBB
+# find_package(TBB REQUIRED)
+# include_directories(${TBB_INCLUDE_PATH})
 
 # Intel Oidn
-set(OIDN_ROOT "${OIDN_SEARCH_PATH}")
 find_package(Oidn REQUIRED)
+include_directories(${OIDN_INCLUDE_PATH})
+set(OIDN_LIBRARY OpenImageDenoise)
 
-if(OIDN_FOUND)
-    include_directories(${OIDN_INCLUDE_PATH})
-endif()
+# Intel Embree
+find_package(Embree REQUIRED)
+include_directories(${EMBREE_INCLUDE_PATH})
+set(EMBREE_LIBRARY embree)
 
-# Intel TBB
-set(TBB_ROOT "${TBB_SEARCH_PATH}")
-find_package(TBB REQUIRED)
-
-if(TBB_FOUND)
-    include_directories(${TBB_INCLUDE_PATH})
-endif()
-
-# Blosc
-set(BLOSC_ROOT "${BLOSC_SEARCH_PATH}")
 find_package(Blosc REQUIRED)
-
-if(BLOSC_FOUND)
-    include_directories(${BLOSC_INCLUDE_PATH})
-endif()
+include_directories(${BLOSC_INCLUDE_PATH})
+set(BLOSC_LIBRARY blosc_static)
 
 # OpenMP
 if(NOT APPLE)

@@ -81,11 +81,12 @@ add_custom_target(pyluxcoretools ALL
 	COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/lib"
 	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../samples/pyluxcoretool/pyluxcoretool.py" "__main__.py"
 	COMMAND ${CMAKE_COMMAND} -E
-			tar "cf" "${CMAKE_BINARY_DIR}/lib/pyluxcoretools.zip"
-					--format=zip pyluxcoretools __main__.py
+	tar "cf" "${CMAKE_BINARY_DIR}/lib/pyluxcoretools.zip"
+	--format=zip pyluxcoretools __main__.py
+	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/lib/pyluxcoretools.zip" "${CMAKE_BINARY_DIR}/blender/pyluxcoretools.zip"
 	DEPENDS
-		"${pyluxcoretools_dir}/pyluxcoremenu/menuwindow.py"
-		"${pyluxcoretools_dir}/pyluxcorenetnode/mainwindow.py"
-		"${pyluxcoretools_dir}/pyluxcorenetconsole/mainwindow.py"
-		"${pyluxcoretools_dir}/pyluxcorenetconsole/addnodedialog.py"
-		pyluxcoretools_copy_dir)
+	"${pyluxcoretools_dir}/pyluxcoremenu/menuwindow.py"
+	"${pyluxcoretools_dir}/pyluxcorenetnode/mainwindow.py"
+	"${pyluxcoretools_dir}/pyluxcorenetconsole/mainwindow.py"
+	"${pyluxcoretools_dir}/pyluxcorenetconsole/addnodedialog.py"
+	pyluxcoretools_copy_dir)

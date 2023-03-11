@@ -130,9 +130,9 @@ if(NOT OIDN_FOUND AND NOT LUXCORE_DISABLE_OIDN)
 	MESSAGE(FATAL_ERROR "--> Could not locate required Intel Oidn files - Please check ${OIDN_SEARCH_PATH}")
 endif()
 
-if(NOT TBB_FOUND)
-	MESSAGE(FATAL_ERROR "--> Could not locate required Intel TBB files - Please check ${TBB_SEARCH_PATH}")
-endif()
+# if(NOT TBB_FOUND)
+# 	MESSAGE(FATAL_ERROR "--> Could not locate required Intel TBB files - Please check ${TBB_SEARCH_PATH}")
+# endif()
 
 if(NOT BLOSC_FOUND)
 	MESSAGE(FATAL_ERROR "--> Could not locate required C-BLOSC files - Please check ${BLOSC_SEARCH_PATH}")
@@ -220,7 +220,6 @@ endif(OPENGL_FOUND)
 # Tests
 #
 # ###############################################################################
-add_subdirectory(pyunittests) # ############################################################################### ## For non win32 we'll have to copy everything to a single dir#
-# ###############################################################################
+add_subdirectory(pyunittests) # ############################################################################### ## For non win32 we'll have to copy everything to a single dir## ###############################################################################
 
 INCLUDE(AssembleBinDirs)

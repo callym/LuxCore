@@ -1,5 +1,10 @@
 include(FetchContent)
 
+set(ENABLE_BZIP2 OFF)
+set(ENABLE_FREETYPE OFF)
+set(ENABLE_FFMPEG OFF)
+set(ENABLE_OPENCV OFF)
+
 git_declare(OpenImageIO OpenImageIO/oiio v2.4.9.0)
 
 FetchContent_GetProperties(OpenImageIO)

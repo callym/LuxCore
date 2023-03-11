@@ -271,6 +271,8 @@ IF(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID 
 
 	SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
 	SET(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -ftree-vectorize -funroll-loops -fvariable-expansion-in-unroller")
+
+	link_libraries(-static-libgcc -static-libstdc++)
 ENDIF()
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
