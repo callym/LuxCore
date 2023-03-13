@@ -23,7 +23,7 @@
 #include "slg/utils/varianceclamping.h"
 #include "slg/film/imagepipeline/plugins/bakemapmargin.h"
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 using namespace std;
 using namespace luxrays;
@@ -51,7 +51,7 @@ void BakeCPURenderThread::InitBakeWork(const BakeMapInfo &mapInfo) {
 
 	engine->currentSceneObjsToBake.clear();
 	engine->currentSceneObjsToBakeArea.clear();
-	
+
 	if (engine->skipExistingMapFiles) {
 		// Check if the file exist
 		if (boost::filesystem::exists(mapInfo.fileName)) {
@@ -97,7 +97,7 @@ void BakeCPURenderThread::InitBakeWork(const BakeMapInfo &mapInfo) {
 			int sceneObjIndex = 0; sceneObjIndex < engine->currentSceneObjDist.size(); ++sceneObjIndex) {
 		const SceneObject *sceneObj = engine->currentSceneObjsToBake[sceneObjIndex];
 		const ExtMesh *mesh = sceneObj->GetExtMesh();
-		
+
 		Transform localToWorld;
 		sceneObj->GetExtMesh()->GetLocal2World(0.f, localToWorld);
 
@@ -107,10 +107,10 @@ void BakeCPURenderThread::InitBakeWork(const BakeMapInfo &mapInfo) {
 			trisArea[triIndex] = mesh->GetTriangleArea(localToWorld, triIndex);
 			engine->currentSceneObjsToBakeArea[sceneObjIndex] += trisArea[triIndex];
 		}
-		
+
 		engine->currentSceneObjDist[sceneObjIndex] = new Distribution1D(&trisArea[0], trisArea.size());
 	}
-	
+
 	// To sample the meshes according their area
 	delete engine->currentSceneObjsDist;
 	engine->currentSceneObjsDist = new Distribution1D(&engine->currentSceneObjsToBakeArea[0], engine->currentSceneObjsToBakeArea.size());
@@ -190,14 +190,14 @@ void BakeCPURenderThread::RenderEyeSample(const BakeMapInfo &mapInfo, PathTracer
 			pathInfo.isPassThroughPath = false;
 
 			const PathTracer::DirectLightResult directLightResult = pathTracer.DirectLightSampling(state.device, state.scene,
-					timeSample,
-					state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 3),
-					state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 4),
-					state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 5),
-					state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 6),
-					state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 7),
-					pathInfo, 
-					Spectrum(1.f), bsdf, &sampleResult);
+																								   timeSample,
+																								   state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 3),
+																								   state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 4),
+																								   state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 5),
+																								   state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 6),
+																								   state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 7),
+																								   pathInfo,
+																								   Spectrum(1.f), bsdf, &sampleResult);
 
 			sampleResult.rayCount += (float)(device->GetTotalRaysCount() - deviceRayCount);
 
@@ -253,15 +253,15 @@ void BakeCPURenderThread::RenderEyeSample(const BakeMapInfo &mapInfo, PathTracer
 			pathInfo.isPassThroughPath = false;
 
 			const PathTracer::DirectLightResult directLightResult = pathTracer.DirectLightSampling(state.device, state.scene,
-					timeSample,
-					state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 3),
-					state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 4),
-					state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 5),
-					state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 6),
-					state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 7),
-					pathInfo, 
-					Spectrum(1.f), bsdf, &sampleResult,
-					false);
+																								   timeSample,
+																								   state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 3),
+																								   state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 4),
+																								   state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 5),
+																								   state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 6),
+																								   state.eyeSampler->GetSample(pathTracer.eyeSampleSize + 7),
+																								   pathInfo,
+																								   Spectrum(1.f), bsdf, &sampleResult,
+																								   false);
 
 			sampleResult.rayCount += (float)(device->GetTotalRaysCount() - deviceRayCount);
 
@@ -356,7 +356,7 @@ void BakeCPURenderThread::RenderConnectToEyeCallBack(const BakeMapInfo &mapInfo,
 void BakeCPURenderThread::RenderLightSample(const BakeMapInfo &mapInfo, PathTracerThreadState &state) const {
 	BakeCPURenderEngine *engine = (BakeCPURenderEngine *)renderEngine;
 	const PathTracer &pathTracer = engine->pathTracer;
-	
+
 	const PathTracer::ConnectToEyeCallBackType connectToEyeCallBack = boost::bind(
 			&BakeCPURenderThread::RenderConnectToEyeCallBack, this, mapInfo, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4, boost::placeholders::_5);
 
@@ -420,7 +420,7 @@ void BakeCPURenderThread::RenderFunc() {
 			SLG_LOG("Baking map index: " << mapInfoIndex << "/" << engine->mapInfos.size());
 			InitBakeWork(mapInfo);
 		}
-		
+
 		// Synchronize
 		engine->threadsSyncBarrier->wait();
 
@@ -503,7 +503,7 @@ void BakeCPURenderThread::RenderFunc() {
 					const u_int pass = static_cast<u_int>(engine->mapFilm->GetTotalSampleCount() /
 							(engine->mapFilm->GetWidth() * engine->mapFilm->GetHeight()));
 					const float convergence = engine->mapFilm->GetConvergence();
-					
+
 					SLG_LOG("Baking map #" << mapInfoIndex << "/" << engine->mapInfos.size() << ": "
 							"[Elapsed time " << int(elapsedTime) << " secs]"
 							"[Samples " << pass << "]"
@@ -546,8 +546,8 @@ void BakeCPURenderThread::RenderFunc() {
 			Properties props;
 			props << Property("index")(mapInfo.imagePipelineIndex);
 			engine->mapFilm->Output(mapInfo.fileName,
-					engine->mapFilm->HasChannel(Film::ALPHA) ? FilmOutputs::RGBA_IMAGEPIPELINE : FilmOutputs::RGB_IMAGEPIPELINE,
-					&props, false);			
+									engine->mapFilm->HasChannel(Film::ALPHA) ? FilmOutputs::RGBA_IMAGEPIPELINE : FilmOutputs::RGB_IMAGEPIPELINE,
+									&props, false);
 		}
 
 		engine->threadsSyncBarrier->wait();

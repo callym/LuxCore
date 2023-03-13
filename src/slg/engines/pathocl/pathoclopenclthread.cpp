@@ -31,7 +31,7 @@
 #include "slg/renderconfig.h"
 #include "slg/engines/pathocl/pathocl.h"
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 using namespace std;
 using namespace luxrays;
@@ -71,7 +71,7 @@ void PathOCLOpenCLRenderThread::StartRenderThread() {
 	// merge of all thread films
 	if (engine->hasStartFilm && (threadIndex == 0))
 		threadFilms[0]->film->AddFilm(*engine->film);
-	
+
 	PathOCLBaseOCLRenderThread::StartRenderThread();
 }
 
@@ -159,9 +159,9 @@ void PathOCLOpenCLRenderThread::RenderThreadImpl() {
 					gpuTaskStats);
 
 				intersectionDevice->FinishQueue();
-				
+
 				// I need to update the film samples count
-				
+
 				double totalCount = 0.0;
 				for (size_t i = 0; i < taskCount; ++i)
 					totalCount += gpuTaskStats[i].sampleCount;
@@ -173,7 +173,7 @@ void PathOCLOpenCLRenderThread::RenderThreadImpl() {
 			totalTransferTime += timeTransferEnd - timeTransferStart;
 
 			//------------------------------------------------------------------
-			
+
 			const double timeKernelStart = WallClockTime();
 
 			// This is required for updating film denoiser parameter
@@ -230,7 +230,7 @@ void PathOCLOpenCLRenderThread::RenderThreadImpl() {
 
 	threadFilms[0]->RecvFilm(intersectionDevice);
 	intersectionDevice->FinishQueue();
-	
+
 	threadDone = true;
 
 	// This is done to stop threads pending on barrier wait
@@ -238,7 +238,7 @@ void PathOCLOpenCLRenderThread::RenderThreadImpl() {
 	// halt condition is satisfied.
 	if (engine->photonGICache)
 		engine->photonGICache->FinishUpdate(threadIndex);
-	
+
 	intersectionDevice->PopThreadCurrentDevice();
 }
 

@@ -24,7 +24,7 @@
 #include "slg/kernels/kernels.h"
 #include "slg/engines/tilepathocl/tilepathocl.h"
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 using namespace std;
 using namespace luxrays;
@@ -35,8 +35,8 @@ using namespace slg;
 //------------------------------------------------------------------------------
 
 TilePathOCLRenderThread::TilePathOCLRenderThread(const u_int index,
-	HardwareIntersectionDevice *device, TilePathOCLRenderEngine *re) : 
-	PathOCLBaseOCLRenderThread(index, device, re) {
+												 HardwareIntersectionDevice *device, TilePathOCLRenderEngine *re) : PathOCLBaseOCLRenderThread(index, device, re)
+{
 }
 
 TilePathOCLRenderThread::~TilePathOCLRenderThread() {
@@ -47,7 +47,7 @@ void TilePathOCLRenderThread::GetThreadFilmSize(u_int *filmWidth, u_int *filmHei
 	TilePathOCLRenderEngine *engine = (TilePathOCLRenderEngine *)renderEngine;
 	*filmWidth = engine->tileRepository->tileWidth;
 	*filmHeight = engine->tileRepository->tileHeight;
-	filmSubRegion[0] = 0; 
+	filmSubRegion[0] = 0;
 	filmSubRegion[1] = engine->tileRepository->tileWidth - 1;
 	filmSubRegion[2] = 0;
 	filmSubRegion[3] = engine->tileRepository->tileHeight - 1;
@@ -204,8 +204,9 @@ void TilePathOCLRenderThread::RenderThreadImpl() {
 
 			// Check the the time spent, if it is too small (< 400ms) get more tiles
 			// (avoid to increase the number of tiles on CPU devices, it is useless)
-			if ((tileWorks.size() < engine->maxTilePerDevice) && (renderingTime < 0.4) && 
-					(intersectionDevice->GetDeviceDesc()->GetType() != DEVICE_TYPE_OPENCL_CPU)) {
+			if ((tileWorks.size() < engine->maxTilePerDevice) && (renderingTime < 0.4) &&
+				(intersectionDevice->GetDeviceDesc()->GetType() != DEVICE_TYPE_OPENCL_CPU))
+			{
 				IncThreadFilms();
 				tileWorks.resize(tileWorks.size() + 1);
 				samplerDatas.resize(samplerDatas.size() + 1);
@@ -240,7 +241,7 @@ void TilePathOCLRenderThread::RenderThreadImpl() {
 	// halt condition is satisfied.
 	if (engine->photonGICache)
 		engine->photonGICache->FinishUpdate(threadIndex);
-	
+
 	intersectionDevice->PopThreadCurrentDevice();
 }
 
