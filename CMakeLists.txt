@@ -1,35 +1,37 @@
-################################################################################
+# ###############################################################################
 # Copyright 1998-2020 by authors (see AUTHORS.txt)
 #
-#   This file is part of LuxCoreRender.
+# This file is part of LuxCoreRender.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-################################################################################
+# ###############################################################################
 
 MESSAGE(STATUS "CMake version " ${CMAKE_VERSION} " detected")
 
-
-################################################################################
+# ###############################################################################
 #
 # Check and configure cmake
 #
-################################################################################
-
-cmake_minimum_required(VERSION 3.5.1)
-cmake_policy(VERSION 3.0)
+# ###############################################################################
+cmake_minimum_required(VERSION 3.25.2)
+cmake_policy(VERSION 3.25)
 
 if(POLICY CMP0072)
-	cmake_policy(SET CMP0072 OLD)
+	cmake_policy(SET CMP0072 NEW)
+endif()
+
+if(POLICY CMP0077)
+	cmake_policy(SET CMP0077 NEW)
 endif()
 
 # Remove the following when the version check is at least 2.8.4
@@ -39,7 +41,6 @@ set(supported_build_variants "Debug" "Release")
 
 # Detect whether we're using a single config or multi config generator and
 # configure it:
-
 unset(CMAKE_CONFIGURATION_TYPES CACHE)
 
 # This boots up the generator:
@@ -80,31 +81,22 @@ endif(NOT DEFINED LuxRays_SOURCE_DIR)
 #
 # ###############################################################################
 set(CMAKE_MODULE_PATH
-	"${LuxRays_SOURCE_DIR}"
-	"${LuxRays_SOURCE_DIR}/cmake"
-	"${LuxRays_SOURCE_DIR}/cmake/Utils"
-	"${LuxRays_SOURCE_DIR}/cmake/Packages"
-	"${LuxRays_SOURCE_DIR}/cmake/SpecializedConfig"
+	"${CMAKE_SOURCE_DIR}"
+	"${CMAKE_SOURCE_DIR}/cmake"
+	"${CMAKE_SOURCE_DIR}/cmake/Utils"
+	"${CMAKE_SOURCE_DIR}/cmake/Packages"
+	"${CMAKE_SOURCE_DIR}/cmake/SpecializedConfig"
 )
 
 INCLUDE(PlatformSpecific)
 INCLUDE(Configuration)
 INCLUDE(KernelPreprocess)
 
-# Install CMake modules
-# add_subdirectory(CMake)
-SET(LuxRays_INCLUDE_DIR "${LuxRays_SOURCE_DIR}/include")
-include_directories("${LuxRays_INCLUDE_DIR}")
+include_directories("${CMAKE_SOURCE_DIR}/include")
+include_directories("${CMAKE_SOURCE_DIR}/deps/optix-7.1.0/include")
+include_directories("${CMAKE_SOURCE_DIR}/deps/robin-hood-hashing-3.9.1/src/include")
 
-include_directories("${LuxRays_SOURCE_DIR}/deps/optix-7.1.0/include")
-include_directories("${LuxRays_SOURCE_DIR}/deps/robin-hood-hashing-3.9.1/src/include")
-
-# Find dependencies
 include(Dependencies)
-
-SET(Boost_Save ${Boost_LIBRARIES})
-find_package(OpenVDB)
-LIST(APPEND Boost_LIBRARIES ${Boost_Save})
 
 if(NOT OpenVDB_FOUND)
 	MESSAGE(FATAL_ERROR "--> Could not locate required OpenVDB files - Please check ${OpenVDB_SEARCH_PATH}")
@@ -129,10 +121,6 @@ endif()
 if(NOT OIDN_FOUND AND NOT LUXCORE_DISABLE_OIDN)
 	MESSAGE(FATAL_ERROR "--> Could not locate required Intel Oidn files - Please check ${OIDN_SEARCH_PATH}")
 endif()
-
-# if(NOT TBB_FOUND)
-# 	MESSAGE(FATAL_ERROR "--> Could not locate required Intel TBB files - Please check ${TBB_SEARCH_PATH}")
-# endif()
 
 if(NOT BLOSC_FOUND)
 	MESSAGE(FATAL_ERROR "--> Could not locate required C-BLOSC files - Please check ${BLOSC_SEARCH_PATH}")
@@ -173,7 +161,7 @@ if(BUILD_LUXCORE_DLL)
 	set(LUXCORE_LIBRARY luxcore)
 	ADD_DEFINITIONS("-DLUXCORE_DLL")
 else()
-	set(LUXCORE_LIBRARY luxcore slg-core slg-film slg-kernels luxrays bcd ${OSD_LINK_TARGET} ${OPENVDB_LIBRARY} ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
+	set(LUXCORE_LIBRARY luxcore slg-core slg-film slg-kernels luxrays bcd ${OSD_LIBRARY} ${OPENVDB_LIBRARY} ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
 endif()
 
 # ###############################################################################

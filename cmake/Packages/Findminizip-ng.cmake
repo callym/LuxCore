@@ -16,3 +16,5 @@ set(MZ_FETCH_LIBS OFF)
 set(MZ_FORCE_FETCH_LIBS OFF)
 
 git(minizip-ng zlib-ng/minizip-ng 3.0.8)
+
+add_library(MINIZIP::minizip-ng ALIAS minizip-ng)

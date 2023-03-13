@@ -562,8 +562,7 @@ add_library(slg-core STATIC ${SLG_CORE_SRCS})
 target_link_libraries(slg-core PRIVATE Iex Imath OpenEXR IlmThread)
 target_link_libraries(slg-core PRIVATE OpenColorIO)
 target_link_libraries(slg-core PRIVATE OpenImageIO)
-target_link_libraries(slg-core PRIVATE OpenImageIO)
-target_link_libraries(slg-core PRIVATE ${OSD_LINK_TARGET})
+target_link_libraries(slg-core PRIVATE ${OSD_LIBRARY})
 
 # ############################################################################
 #

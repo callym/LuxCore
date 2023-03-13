@@ -6,3 +6,4 @@ set(BUILD_BENCHMARKS OFF)
 git(Blosc Blosc/c-blosc v1.21.2)
 
 set(BLOSC_FOUND TRUE)
+set(BLOSC_LIBRARY blosc_static)

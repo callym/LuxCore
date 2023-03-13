@@ -152,7 +152,7 @@ set(LUXCORE_LIB_SRCS
 
 if (BUILD_LUXCORE_DLL)
 	add_library(luxcore SHARED ${LUXCORE_LIB_SRCS} ${LUX_PARSER_SRC})
-	target_link_libraries(luxcore PRIVATE slg-core slg-film slg-kernels luxrays bcd ${OSD_LINK_TARGET} openvdb ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
+	target_link_libraries(luxcore PRIVATE slg-core slg-film slg-kernels luxrays bcd ${OSD_LIBRARY} openvdb ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
 else()
 	add_library(luxcore STATIC ${LUXCORE_LIB_SRCS} ${LUX_PARSER_SRC})
 endif()
@@ -187,10 +187,10 @@ include_directories(${OpenVDB_INCLUDE_DIRS})
 include_directories(${LuxRays_SOURCE_DIR}/deps/opencolorio/include)
 
 if(APPLE)
-	target_link_libraries(pyluxcore -Wl,-undefined -Wl,dynamic_lookup slg-core slg-film slg-kernels luxrays bcd ${OSD_LINK_TARGET} openvdb expat ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
+	target_link_libraries(pyluxcore -Wl,-undefined -Wl,dynamic_lookup slg-core slg-film slg-kernels luxrays bcd ${OSD_LIBRARY} openvdb expat ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
     SET_TARGET_PROPERTIES(pyluxcore PROPERTIES XCODE_ATTRIBUTE_DEPLOYMENT_POSTPROCESSING NO) # exclude pylux from strip, not possible
 else()
-	target_link_libraries(pyluxcore PRIVATE slg-core slg-film slg-kernels luxrays bcd ${OSD_LINK_TARGET} ${OpenVDB_LIBRARIES} ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
+	target_link_libraries(pyluxcore PRIVATE slg-core slg-film slg-kernels luxrays bcd ${OSD_LIBRARY} ${OpenVDB_LIBRARIES} ${BLOSC_LIBRARY} ${EMBREE_LIBRARY} ${OIDN_LIBRARY} ${TBB_LIBRARY} ${TIFF_LIBRARIES} ${TIFF_LIBRARIES} ${OPENEXR_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES})
 endif()
 
 set_target_properties(pyluxcore PROPERTIES PREFIX "")

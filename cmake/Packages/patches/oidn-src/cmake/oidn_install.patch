@@ -1,0 +1,38 @@
+8,18c8,18
+< install(TARGETS ${PROJECT_NAME}
+<   EXPORT
+<     ${PROJECT_NAME}_Export
+<   ARCHIVE
+<     DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT devel
+<   LIBRARY
+<     DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT devel
+<   # On Windows put the dlls into bin
+<   RUNTIME
+<     DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT lib
+< )
+---
+> # install(TARGETS ${PROJECT_NAME}
+> #   EXPORT
+> #     ${PROJECT_NAME}_Export
+> #   ARCHIVE
+> #     DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT devel
+> #   LIBRARY
+> #     DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT devel
+> #   # On Windows put the dlls into bin
+> #   RUNTIME
+> #     DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT lib
+> # )
+87,92c87,92
+< install(EXPORT ${PROJECT_NAME}_Export
+<   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${OIDN_VERSION}
+<   #NAMESPACE ${PROJECT_NAME}::
+<   FILE ${PROJECT_NAME}Config.cmake
+<   COMPONENT devel
+< )
+---
+> # install(EXPORT ${PROJECT_NAME}_Export
+> #   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${OIDN_VERSION}
+> #   #NAMESPACE ${PROJECT_NAME}::
+> #   FILE ${PROJECT_NAME}Config.cmake
+> #   COMPONENT devel
+> # )
