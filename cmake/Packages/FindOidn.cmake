@@ -1,6 +1,6 @@
 include(FetchContent)
 
-set(OIDN_STATIC_LIB ON)
+set(OIDN_STATIC_LIB ON CACHE INTERNAL "")
 
 FetchContent_Declare(
 	Oidn
