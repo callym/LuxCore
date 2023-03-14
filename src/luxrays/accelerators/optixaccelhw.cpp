@@ -326,10 +326,6 @@ public:
 		buildInput.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
 		buildInput.instanceArray.instances = ((CUDADeviceBuffer *)optixInstancesBuff)->GetCUDADevicePointer();
 		buildInput.instanceArray.numInstances = optixInstances.size();
-		if (usesMotionBlur) {
-			buildInput.instanceArray.aabbs = ((CUDADeviceBuffer *)optixBBsBuff)->GetCUDADevicePointer();
-			buildInput.instanceArray.numAabbs = optixBBs.size();
-		}
 		
 		OptixTraversableHandle topLevelHandle;
 		HardwareDeviceBuffer *topLevelOutputBuffer = nullptr;

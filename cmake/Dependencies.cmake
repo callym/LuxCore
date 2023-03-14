@@ -152,6 +152,9 @@ include_directories(${OPENSUBDIV_INCLUDE_PATH})
 find_package(robin-hood-hashing REQUIRED)
 include_directories(${ROBIN_HOOD_HASHING_INCLUDE_PATH})
 
+find_package(Optix REQUIRED)
+include_directories(${OPTIX_INCLUDE_PATH})
+
 # OpenMP
 if(NOT APPLE)
     find_package(OpenMP)

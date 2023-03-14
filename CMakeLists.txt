@@ -93,7 +93,6 @@ INCLUDE(Configuration)
 INCLUDE(KernelPreprocess)
 
 include_directories("${CMAKE_SOURCE_DIR}/include")
-include_directories("${CMAKE_SOURCE_DIR}/deps/optix-7.1.0/include")
 
 include(Dependencies)
 

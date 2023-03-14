@@ -48,17 +48,31 @@ static __forceinline__ __device__ void optixTrace( OptixTraversableHandle handle
                                                    unsigned int           SBTstride,
                                                    unsigned int           missSBTIndex )
 {
-    float ox = rayOrigin.x, oy = rayOrigin.y, oz = rayOrigin.z;
-    float dx = rayDirection.x, dy = rayDirection.y, dz = rayDirection.z;
+    float        ox = rayOrigin.x, oy = rayOrigin.y, oz = rayOrigin.z;
+    float        dx = rayDirection.x, dy = rayDirection.y, dz = rayDirection.z;
+    unsigned int p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21,
+        p22, p23, p24, p25, p26, p27, p28, p29, p30, p31;
     asm volatile(
-        "call _optix_trace_0"
-        ", (%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14"
-        ");"
-        :
-        /* no return value */
-        : "l"( handle ), "f"( ox ), "f"( oy ), "f"( oz ), "f"( dx ), "f"( dy ), "f"( dz ), "f"( tmin ), "f"( tmax ),
-          "f"( rayTime ), "r"( visibilityMask ), "r"( rayFlags ), "r"( SBToffset ), "r"( SBTstride ), "r"( missSBTIndex )
+        "call"
+        "(%0,%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15,%16,%17,%18,%19,%20,%21,%22,%23,%24,%25,%26,%27,%28,%"
+        "29,%30,%31),"
+        "_optix_trace_typed_32,"
+        "(%32,%33,%34,%35,%36,%37,%38,%39,%40,%41,%42,%43,%44,%45,%46,%47,%48,%49,%50,%51,%52,%53,%54,%55,%56,%57,%58,%"
+        "59,%60,%61,%62,%63,%64,%65,%66,%67,%68,%69,%70,%71,%72,%73,%74,%75,%76,%77,%78,%79,%80);"
+        : "=r"( p0 ), "=r"( p1 ), "=r"( p2 ), "=r"( p3 ), "=r"( p4 ), "=r"( p5 ), "=r"( p6 ), "=r"( p7 ), "=r"( p8 ),
+          "=r"( p9 ), "=r"( p10 ), "=r"( p11 ), "=r"( p12 ), "=r"( p13 ), "=r"( p14 ), "=r"( p15 ), "=r"( p16 ),
+          "=r"( p17 ), "=r"( p18 ), "=r"( p19 ), "=r"( p20 ), "=r"( p21 ), "=r"( p22 ), "=r"( p23 ), "=r"( p24 ),
+          "=r"( p25 ), "=r"( p26 ), "=r"( p27 ), "=r"( p28 ), "=r"( p29 ), "=r"( p30 ), "=r"( p31 )
+        : "r"( 0 ), "l"( handle ), "f"( ox ), "f"( oy ), "f"( oz ), "f"( dx ), "f"( dy ), "f"( dz ), "f"( tmin ),
+          "f"( tmax ), "f"( rayTime ), "r"( visibilityMask ), "r"( rayFlags ), "r"( SBToffset ), "r"( SBTstride ),
+          "r"( missSBTIndex ), "r"( 0 ), "r"( p0 ), "r"( p1 ), "r"( p2 ), "r"( p3 ), "r"( p4 ), "r"( p5 ), "r"( p6 ),
+          "r"( p7 ), "r"( p8 ), "r"( p9 ), "r"( p10 ), "r"( p11 ), "r"( p12 ), "r"( p13 ), "r"( p14 ), "r"( p15 ),
+          "r"( p16 ), "r"( p17 ), "r"( p18 ), "r"( p19 ), "r"( p20 ), "r"( p21 ), "r"( p22 ), "r"( p23 ), "r"( p24 ),
+          "r"( p25 ), "r"( p26 ), "r"( p27 ), "r"( p28 ), "r"( p29 ), "r"( p30 ), "r"( p31 )
         : );
+    (void)p0, (void)p1, (void)p2, (void)p3, (void)p4, (void)p5, (void)p6, (void)p7, (void)p8, (void)p9, (void)p10, (void)p11,
+        (void)p12, (void)p13, (void)p14, (void)p15, (void)p16, (void)p17, (void)p18, (void)p19, (void)p20, (void)p21,
+        (void)p22, (void)p23, (void)p24, (void)p25, (void)p26, (void)p27, (void)p28, (void)p29, (void)p30, (void)p31;
 }
 
 static __forceinline__ __device__ float optixGetRayTmax()
@@ -167,7 +181,7 @@ extern "C" __global__ void __miss__OptixAccel() {
 
 	RayHit *rayHitBuff = (RayHit *)optixAccelParams.rayHitBuff;
 	RayHit *rayHit = &rayHitBuff[launchIndex.x];
-	
+
 	rayHit->meshIndex = NULL_INDEX;
 	rayHit->triangleIndex = NULL_INDEX;
 }
