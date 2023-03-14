@@ -42,13 +42,13 @@ typedef struct Params {
 
 class OptixKernel : public HardwareIntersectionKernel {
 public:
-	OptixKernel(HardwareIntersectionDevice &dev, const OptixAccel &optixAccel) :
-			HardwareIntersectionKernel(dev), 
-			optixModule(nullptr), optixRaygenProgGroup(nullptr),
-			optixMissProgGroup(nullptr), optixHitProgGroup(nullptr),
-			optixPipeline(nullptr), optixAccelParamsBuff(nullptr),
-			optixRayGenSbtBuff(nullptr), optixMissSbtBuff(nullptr),
-			optixHitSbtBuff(nullptr), optixEmptyAccelKernel(nullptr) {
+	OptixKernel(HardwareIntersectionDevice &dev, const OptixAccel &optixAccel) : HardwareIntersectionKernel(dev),
+																				 optixModule(nullptr), optixRaygenProgGroup(nullptr),
+																				 optixMissProgGroup(nullptr), optixHitProgGroup(nullptr),
+																				 optixPipeline(nullptr), optixAccelParamsBuff(nullptr),
+																				 optixRayGenSbtBuff(nullptr), optixMissSbtBuff(nullptr),
+																				 optixHitSbtBuff(nullptr), optixEmptyAccelKernel(nullptr)
+	{
 		CUDAIntersectionDevice *cudaDevice = dynamic_cast<CUDAIntersectionDevice *>(&dev);
 
 		// Safety checks
@@ -63,15 +63,15 @@ public:
 
 		OptixDeviceContext optixContext = cudaDevice->GetOptixContext();
 
-		
 		//----------------------------------------------------------------------
 		// Handle the empty DataSet case
 		//----------------------------------------------------------------------
-		
-		if (optixAccel.meshes.size() == 0) {
+
+		if (optixAccel.meshes.size() == 0)
+		{
 			LR_LOG(device.GetContext(), "Optix accelerator is empty");
 			emptyDataSet = true;
-			
+
 			// Compile options
 			vector<string> opts;
 			opts.push_back("-D LUXRAYS_OPENCL_KERNEL");
@@ -79,21 +79,13 @@ public:
 			opts.push_back("-D PARAM_RAY_EPSILON_MAX=" + ToString(MachineEpsilon::GetMax()) + "f");
 
 			stringstream code;
-			code <<
-				luxrays::ocl::KernelSource_luxrays_types <<
-				luxrays::ocl::KernelSource_epsilon_types <<
-				luxrays::ocl::KernelSource_epsilon_funcs <<
-				luxrays::ocl::KernelSource_point_types <<
-				luxrays::ocl::KernelSource_vector_types <<
-				luxrays::ocl::KernelSource_ray_types <<
-				luxrays::ocl::KernelSource_ray_funcs <<
-				luxrays::ocl::KernelSource_optixemptyaccel;
+			code << luxrays::ocl::KernelSource_luxrays_types << luxrays::ocl::KernelSource_epsilon_types << luxrays::ocl::KernelSource_epsilon_funcs << luxrays::ocl::KernelSource_point_types << luxrays::ocl::KernelSource_vector_types << luxrays::ocl::KernelSource_ray_types << luxrays::ocl::KernelSource_ray_funcs << luxrays::ocl::KernelSource_optixemptyaccel;
 
 			HardwareDeviceProgram *program = nullptr;
 			device.CompileProgram(&program,
-					opts,
-					code.str(),
-					"OptixEmptyAccelKernel");
+								  opts,
+								  code.str(),
+								  "OptixEmptyAccelKernel");
 
 			// Setup the kernel
 			device.GetKernel(program, &optixEmptyAccelKernel, "Accelerator_Intersect_RayBuffer");
@@ -101,14 +93,15 @@ public:
 			if (device.GetDeviceDesc()->GetForceWorkGroupSize() > 0)
 				optixEmptyAccelWorkGroupSize = device.GetDeviceDesc()->GetForceWorkGroupSize();
 			else
-				optixEmptyAccelWorkGroupSize = device.GetKernelWorkGroupSize(optixEmptyAccelKernel); 
+				optixEmptyAccelWorkGroupSize = device.GetKernelWorkGroupSize(optixEmptyAccelKernel);
 
 			delete program;
 
 			return;
-		} else
+		}
+		else
 			emptyDataSet = false;
-		
+
 		//----------------------------------------------------------------------
 		// Build Optix accelerator structure
 		//----------------------------------------------------------------------
@@ -117,187 +110,193 @@ public:
 
 		vector<OptixInstance> optixInstances;
 		vector<OptixAabb> optixBBs;
-		
+
 		auto uniqueMeshTraversableHandle = map<const Mesh *, OptixTraversableHandle,
-				function<bool(const Mesh *, const Mesh *)>>{
-			[](const Mesh *p0, const Mesh *p1) {
+											   function<bool(const Mesh *, const Mesh *)>>{
+			[](const Mesh *p0, const Mesh *p1)
+			{
 				return p0 < p1;
-			}
-		};
+			}};
 
 		bool usesMotionBlur = false;
-		for (u_int i = 0; i < optixAccel.meshes.size(); ++i) {
+		for (u_int i = 0; i < optixAccel.meshes.size(); ++i)
+		{
 			const Mesh *mesh = optixAccel.meshes[i];
-			
-			switch (mesh->GetType()) {
-				case TYPE_TRIANGLE:
-				case TYPE_EXT_TRIANGLE: {
-					const TriangleMesh *tm = dynamic_cast<const TriangleMesh *>(mesh);
 
-					OptixTraversableHandle handle;
+			switch (mesh->GetType())
+			{
+			case TYPE_TRIANGLE:
+			case TYPE_EXT_TRIANGLE:
+			{
+				const TriangleMesh *tm = dynamic_cast<const TriangleMesh *>(mesh);
+
+				OptixTraversableHandle handle;
+				HardwareDeviceBuffer *outputBuffer = nullptr;
+
+				BuildTraversable(tm, handle, &outputBuffer);
+
+				optixOutputBuffers.push_back(outputBuffer);
+
+				// Add an instance of this mesh
+
+				optixInstances.resize(optixInstances.size() + 1);
+				OptixInstance &optixInstance = optixInstances[optixInstances.size() - 1];
+				memset(&optixInstance, 0, sizeof(OptixInstance));
+
+				// Clear transform to identity matrix
+				optixInstance.transform[0] = 1.f;
+				optixInstance.transform[5] = 1.f;
+				optixInstance.transform[10] = 1.f;
+				optixInstance.instanceId = i;
+				optixInstance.visibilityMask = 1;
+				optixInstance.traversableHandle = handle;
+				break;
+			}
+			case TYPE_TRIANGLE_INSTANCE:
+			case TYPE_EXT_TRIANGLE_INSTANCE:
+			{
+				const InstanceTriangleMesh *itm = dynamic_cast<const InstanceTriangleMesh *>(mesh);
+
+				// Check if a OptixTraversableHandle has already been created
+				auto it = uniqueMeshTraversableHandle.find(itm->GetTriangleMesh());
+
+				OptixTraversableHandle instancedMeshHandle;
+				if (it == uniqueMeshTraversableHandle.end())
+				{
+					TriangleMesh *instancedMesh = itm->GetTriangleMesh();
+
+					// Create a new OptixTraversableHandle
 					HardwareDeviceBuffer *outputBuffer = nullptr;
-
-					BuildTraversable(tm, handle, &outputBuffer);
-
+					BuildTraversable(instancedMesh, instancedMeshHandle, &outputBuffer);
 					optixOutputBuffers.push_back(outputBuffer);
 
-					// Add an instance of this mesh
-
-					optixInstances.resize(optixInstances.size() + 1);
-					OptixInstance &optixInstance = optixInstances[optixInstances.size() - 1];
-					memset(&optixInstance, 0, sizeof(OptixInstance));
-
-					// Clear transform to identity matrix
-					optixInstance.transform[0] = 1.f;
-					optixInstance.transform[5] = 1.f;
-					optixInstance.transform[10] = 1.f;
-					optixInstance.instanceId = i;
-					optixInstance.visibilityMask = 1;
-					optixInstance.traversableHandle = handle;
-					// Disable transformation
-					optixInstance.flags = OPTIX_INSTANCE_FLAG_DISABLE_TRANSFORM;
-					break;
+					// Add to the listed of created handles
+					uniqueMeshTraversableHandle[instancedMesh] = instancedMeshHandle;
 				}
-				case TYPE_TRIANGLE_INSTANCE:
-				case TYPE_EXT_TRIANGLE_INSTANCE: {
-					const InstanceTriangleMesh *itm = dynamic_cast<const InstanceTriangleMesh *>(mesh);
+				else
+					instancedMeshHandle = it->second;
 
-					// Check if a OptixTraversableHandle has already been created
-					auto it = uniqueMeshTraversableHandle.find(itm->GetTriangleMesh());
+				// Add an instance of this mesh
 
-					OptixTraversableHandle instancedMeshHandle;
-					if (it == uniqueMeshTraversableHandle.end()) {
-						TriangleMesh *instancedMesh = itm->GetTriangleMesh();
+				optixInstances.resize(optixInstances.size() + 1);
+				OptixInstance &optixInstance = optixInstances[optixInstances.size() - 1];
+				memset(&optixInstance, 0, sizeof(OptixInstance));
 
-						// Create a new OptixTraversableHandle
-						HardwareDeviceBuffer *outputBuffer = nullptr;
-						BuildTraversable(instancedMesh, instancedMeshHandle, &outputBuffer);
-						optixOutputBuffers.push_back(outputBuffer);
+				// Set transform matrix
+				Transform local2World;
+				itm->GetLocal2World(0.f, local2World);
 
-						// Add to the listed of created handles
-						uniqueMeshTraversableHandle[instancedMesh] = instancedMeshHandle;
-					} else
-						instancedMeshHandle = it->second;
-					
-					// Add an instance of this mesh
+				optixInstance.transform[0] = local2World.m.m[0][0];
+				optixInstance.transform[1] = local2World.m.m[0][1];
+				optixInstance.transform[2] = local2World.m.m[0][2];
+				optixInstance.transform[3] = local2World.m.m[0][3];
+				optixInstance.transform[4] = local2World.m.m[1][0];
+				optixInstance.transform[5] = local2World.m.m[1][1];
+				optixInstance.transform[6] = local2World.m.m[1][2];
+				optixInstance.transform[7] = local2World.m.m[1][3];
+				optixInstance.transform[8] = local2World.m.m[2][0];
+				optixInstance.transform[9] = local2World.m.m[2][1];
+				optixInstance.transform[10] = local2World.m.m[2][2];
+				optixInstance.transform[11] = local2World.m.m[2][3];
 
-					optixInstances.resize(optixInstances.size() + 1);
-					OptixInstance &optixInstance = optixInstances[optixInstances.size() - 1];
-					memset(&optixInstance, 0, sizeof(OptixInstance));
-
-					// Set transform matrix
-					Transform local2World;
-					itm->GetLocal2World(0.f, local2World);
-
-					optixInstance.transform[0] = local2World.m.m[0][0];
-					optixInstance.transform[1] = local2World.m.m[0][1];
-					optixInstance.transform[2] = local2World.m.m[0][2];
-					optixInstance.transform[3] = local2World.m.m[0][3];
-					optixInstance.transform[4] = local2World.m.m[1][0];
-					optixInstance.transform[5] = local2World.m.m[1][1];
-					optixInstance.transform[6] = local2World.m.m[1][2];
-					optixInstance.transform[7] = local2World.m.m[1][3];
-					optixInstance.transform[8] = local2World.m.m[2][0];
-					optixInstance.transform[9] = local2World.m.m[2][1];
-					optixInstance.transform[10] = local2World.m.m[2][2];
-					optixInstance.transform[11] = local2World.m.m[2][3];
-
-					optixInstance.instanceId = i;
-					optixInstance.visibilityMask = 1;
-					optixInstance.traversableHandle = instancedMeshHandle;
-					break;
-				}
-				case TYPE_TRIANGLE_MOTION:
-				case TYPE_EXT_TRIANGLE_MOTION: {
-					const MotionTriangleMesh *mtm = dynamic_cast<const MotionTriangleMesh *>(mesh);
-
-					// Check if a OptixTraversableHandle has already been created
-					auto it = uniqueMeshTraversableHandle.find(mtm->GetTriangleMesh());
-
-					OptixTraversableHandle instancedMeshHandle;
-					if (it == uniqueMeshTraversableHandle.end()) {
-						TriangleMesh *instancedMesh = mtm->GetTriangleMesh();
-
-						// Create a new OptixTraversableHandle
-						HardwareDeviceBuffer *outputBuffer = nullptr;
-						BuildTraversable(instancedMesh, instancedMeshHandle, &outputBuffer);
-						optixOutputBuffers.push_back(outputBuffer);
-
-						// Add to the listed of created handles
-						uniqueMeshTraversableHandle[instancedMesh] = instancedMeshHandle;
-					} else
-						instancedMeshHandle = it->second;
-
-					// Create the motion blur traversable
-
-					const MotionSystem &ms = mtm->GetMotionSystem();
-
-					const size_t transformSizeInBytes = sizeof(OptixMatrixMotionTransform) +
-							(ms.times.size() - 2) * 12 * sizeof(float);
-					unique_ptr<OptixMatrixMotionTransform> motionTransform((OptixMatrixMotionTransform *)new char[transformSizeInBytes]);
-
-					motionTransform->child = instancedMeshHandle;
-					motionTransform->motionOptions.numKeys = ms.times.size();
-					motionTransform->motionOptions.timeBegin = ms.times.front();
-					motionTransform->motionOptions.timeEnd = ms.times.back();
-					motionTransform->motionOptions.flags = OPTIX_MOTION_FLAG_NONE;
-
-					float *ptr = &motionTransform->transform[0][0];
-					for (auto const t : ms.times) {
-						const Matrix4x4 m = ms.SampleInverse(t);
-
-						*ptr++ = m.m[0][0];
-						*ptr++ = m.m[0][1];
-						*ptr++ = m.m[0][2];
-						*ptr++ = m.m[0][3];
-						*ptr++ = m.m[1][0];
-						*ptr++ = m.m[1][1];
-						*ptr++ = m.m[1][2];
-						*ptr++ = m.m[1][3];
-						*ptr++ = m.m[2][0];
-						*ptr++ = m.m[2][1];
-						*ptr++ = m.m[2][2];
-						*ptr++ = m.m[2][3];
-					}
-
-					HardwareDeviceBuffer *optixMotionBuff = nullptr;
-					cudaDevice->AllocBufferRO(&optixMotionBuff, motionTransform.get(), transformSizeInBytes);
-					optixOutputBuffers.push_back(optixMotionBuff);
-
-					OptixTraversableHandle motionMeshHandle;
-					CHECK_OPTIX_ERROR(optixConvertPointerToTraversableHandle(
-							optixContext,
-							((CUDADeviceBuffer *)optixMotionBuff)->GetCUDADevicePointer(),
-							OPTIX_TRAVERSABLE_TYPE_MATRIX_MOTION_TRANSFORM,
-							&motionMeshHandle));
-
-					// Add an instance of this mesh with motion blur
-
-					optixInstances.resize(optixInstances.size() + 1);
-					OptixInstance &optixInstance = optixInstances[optixInstances.size() - 1];
-					memset(&optixInstance, 0, sizeof(OptixInstance));
-
-					// Clear transform to identity matrix
-					optixInstance.transform[0] = 1.f;
-					optixInstance.transform[5] = 1.f;
-					optixInstance.transform[10] = 1.f;
-					optixInstance.instanceId = i;
-					optixInstance.visibilityMask = 1;
-					optixInstance.traversableHandle = motionMeshHandle;
-					// Disable transformation
-					optixInstance.flags = OPTIX_INSTANCE_FLAG_DISABLE_TRANSFORM;
-
-					usesMotionBlur = true;
-					break;
-				}
-				default:
-					throw runtime_error("Unsupported mesh type in OptixKernel(): " + ToString(mesh->GetType()));
+				optixInstance.instanceId = i;
+				optixInstance.visibilityMask = 1;
+				optixInstance.traversableHandle = instancedMeshHandle;
+				break;
 			}
-			
+			case TYPE_TRIANGLE_MOTION:
+			case TYPE_EXT_TRIANGLE_MOTION:
+			{
+				const MotionTriangleMesh *mtm = dynamic_cast<const MotionTriangleMesh *>(mesh);
+
+				// Check if a OptixTraversableHandle has already been created
+				auto it = uniqueMeshTraversableHandle.find(mtm->GetTriangleMesh());
+
+				OptixTraversableHandle instancedMeshHandle;
+				if (it == uniqueMeshTraversableHandle.end())
+				{
+					TriangleMesh *instancedMesh = mtm->GetTriangleMesh();
+
+					// Create a new OptixTraversableHandle
+					HardwareDeviceBuffer *outputBuffer = nullptr;
+					BuildTraversable(instancedMesh, instancedMeshHandle, &outputBuffer);
+					optixOutputBuffers.push_back(outputBuffer);
+
+					// Add to the listed of created handles
+					uniqueMeshTraversableHandle[instancedMesh] = instancedMeshHandle;
+				}
+				else
+					instancedMeshHandle = it->second;
+
+				// Create the motion blur traversable
+
+				const MotionSystem &ms = mtm->GetMotionSystem();
+
+				const size_t transformSizeInBytes = sizeof(OptixMatrixMotionTransform) +
+													(ms.times.size() - 2) * 12 * sizeof(float);
+				unique_ptr<OptixMatrixMotionTransform> motionTransform((OptixMatrixMotionTransform *)new char[transformSizeInBytes]);
+
+				motionTransform->child = instancedMeshHandle;
+				motionTransform->motionOptions.numKeys = ms.times.size();
+				motionTransform->motionOptions.timeBegin = ms.times.front();
+				motionTransform->motionOptions.timeEnd = ms.times.back();
+				motionTransform->motionOptions.flags = OPTIX_MOTION_FLAG_NONE;
+
+				float *ptr = &motionTransform->transform[0][0];
+				for (auto const t : ms.times)
+				{
+					const Matrix4x4 m = ms.SampleInverse(t);
+
+					*ptr++ = m.m[0][0];
+					*ptr++ = m.m[0][1];
+					*ptr++ = m.m[0][2];
+					*ptr++ = m.m[0][3];
+					*ptr++ = m.m[1][0];
+					*ptr++ = m.m[1][1];
+					*ptr++ = m.m[1][2];
+					*ptr++ = m.m[1][3];
+					*ptr++ = m.m[2][0];
+					*ptr++ = m.m[2][1];
+					*ptr++ = m.m[2][2];
+					*ptr++ = m.m[2][3];
+				}
+
+				HardwareDeviceBuffer *optixMotionBuff = nullptr;
+				cudaDevice->AllocBufferRO(&optixMotionBuff, motionTransform.get(), transformSizeInBytes);
+				optixOutputBuffers.push_back(optixMotionBuff);
+
+				OptixTraversableHandle motionMeshHandle;
+				CHECK_OPTIX_ERROR(optixConvertPointerToTraversableHandle(
+					optixContext,
+					((CUDADeviceBuffer *)optixMotionBuff)->GetCUDADevicePointer(),
+					OPTIX_TRAVERSABLE_TYPE_MATRIX_MOTION_TRANSFORM,
+					&motionMeshHandle));
+
+				// Add an instance of this mesh with motion blur
+
+				optixInstances.resize(optixInstances.size() + 1);
+				OptixInstance &optixInstance = optixInstances[optixInstances.size() - 1];
+				memset(&optixInstance, 0, sizeof(OptixInstance));
+
+				// Clear transform to identity matrix
+				optixInstance.transform[0] = 1.f;
+				optixInstance.transform[5] = 1.f;
+				optixInstance.transform[10] = 1.f;
+				optixInstance.instanceId = i;
+				optixInstance.visibilityMask = 1;
+				optixInstance.traversableHandle = motionMeshHandle;
+
+				usesMotionBlur = true;
+				break;
+			}
+			default:
+				throw runtime_error("Unsupported mesh type in OptixKernel(): " + ToString(mesh->GetType()));
+			}
+
 			// Add the bounding box
 
 			optixBBs.resize(optixBBs.size() + 1);
-			OptixAabb &optixBB = optixBBs[optixBBs.size() - 1];					
+			OptixAabb &optixBB = optixBBs[optixBBs.size() - 1];
 			BBox bb = mesh->GetBBox();
 			optixBB.minX = bb.pMin.x;
 			optixBB.minY = bb.pMin.y;
@@ -313,7 +312,6 @@ public:
 		HardwareDeviceBuffer *optixInstancesBuff = nullptr;
 		cudaDevice->AllocBufferRO(&optixInstancesBuff, &optixInstances[0], sizeof(OptixInstance) * optixInstances.size());
 
-		
 		HardwareDeviceBuffer *optixBBsBuff = nullptr;
 		if (usesMotionBlur) {
 			// Allocate optix BBs on device
@@ -321,12 +319,12 @@ public:
 		}
 
 		// Build top level acceleration structure
-		
+
 		OptixBuildInput buildInput = {};
 		buildInput.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
 		buildInput.instanceArray.instances = ((CUDADeviceBuffer *)optixInstancesBuff)->GetCUDADevicePointer();
 		buildInput.instanceArray.numInstances = optixInstances.size();
-		
+
 		OptixTraversableHandle topLevelHandle;
 		HardwareDeviceBuffer *topLevelOutputBuffer = nullptr;
 
@@ -363,7 +361,7 @@ public:
 				luxrays::ocl::KernelSource_ray_funcs +
 				luxrays::ocl::KernelSource_optixaccel;
 		kernelSource = cudaDevice->GetKernelSource(kernelSource);
-		
+
 		char *ptx;
 		size_t ptxSize;
 		bool cached;
@@ -384,7 +382,7 @@ public:
 		OptixModuleCompileOptions moduleCompileOptions = {};
 		moduleCompileOptions.maxRegisterCount = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
 		moduleCompileOptions.optLevel = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
-		moduleCompileOptions.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_LINEINFO;
+		moduleCompileOptions.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_DEFAULT;
 
 		OptixPipelineCompileOptions pipelineCompileOptions = {};
 		pipelineCompileOptions.usesMotionBlur = usesMotionBlur;
@@ -422,7 +420,7 @@ public:
 		OptixProgramGroupOptions programGroupOptions = {};
 
 		// Ray generation
-		
+
 		OptixProgramGroupDesc raygenProgGroupDesc = {};
 		raygenProgGroupDesc.kind = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
 		raygenProgGroupDesc.flags = OPTIX_PROGRAM_GROUP_FLAGS_NONE;
@@ -474,7 +472,7 @@ public:
 				optixErrLog,
 				&optixErrLogSize,
 				&optixHitProgGroup));
-		
+
 		//----------------------------------------------------------------------
 		// Build Optix pipeline
 		//----------------------------------------------------------------------
@@ -487,7 +485,7 @@ public:
 
 		OptixPipelineLinkOptions pipelineLinkOptions = {};
 		pipelineLinkOptions.maxTraceDepth = 1;
-		pipelineLinkOptions.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_LINEINFO;
+		pipelineLinkOptions.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_DEFAULT;
 
 		optixErrLogSize = sizeof(optixErrLog);
 		CHECK_OPTIX_ERROR(optixPipelineCreate(
@@ -534,7 +532,7 @@ public:
 		optixSbt.hitgroupRecordCount = 1;
 
 		// Print some memory statistics
-		
+
 		size_t memUsed = 0;
 		for (auto const b : optixOutputBuffers)
 			memUsed += b->GetSize();
@@ -572,8 +570,6 @@ public:
 		cudaDevice->FreeBuffer(&optixRayGenSbtBuff);
 		cudaDevice->FreeBuffer(&optixMissSbtBuff);
 		cudaDevice->FreeBuffer(&optixHitSbtBuff);
-
-		
 	}
 
 	virtual void Update(const DataSet *newDataSet) { assert(false); }
@@ -614,9 +610,9 @@ private:
 		buildInput.triangleArray.sbtIndexOffsetSizeInBytes = 0;
 		buildInput.triangleArray.sbtIndexOffsetStrideInBytes = 0;
 		buildInput.triangleArray.primitiveIndexOffset = 0;
-		
+
 		BuildTraversable(buildInput, handle, outputBuffer);
-		
+
 		// Free temporary memory
 
 		cudaDevice->FreeBuffer(&vertsBuff);
@@ -672,7 +668,7 @@ private:
 
 		cudaDevice->FreeBuffer(&tmpBufferGas);
 
-		// Compact the accelerator structure 
+		// Compact the accelerator structure
 
 		size_t compactedGasSize;
 		CHECK_CUDA_ERROR(cuMemcpyDtoH(&compactedGasSize, emitProperty.result, sizeof(size_t)));
