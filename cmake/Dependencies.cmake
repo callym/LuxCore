@@ -93,6 +93,11 @@ include_directories(${OPENCOLORIO_INCLUDES})
 
 find_package(OpenColorIO-Configs REQUIRED)
 
+find_package(Blosc REQUIRED)
+include_directories(${BLOSC_INCLUDES})
+
+find_package(OpenVDB REQUIRED)
+
 find_package(OpenImageIO REQUIRED)
 include_directories(${OPENIMAGEIO_INCLUDES})
 
@@ -110,8 +115,6 @@ include_directories(${CLEW_INCLUDES})
 
 find_package(LUT REQUIRED)
 include_directories(${LUT_INCLUDES})
-
-find_package(OpenVDB)
 
 find_package(TIFF REQUIRED)
 include_directories(${TIFF_INCLUDE_DIR})
@@ -142,9 +145,6 @@ include_directories(${OIDN_INCLUDE_PATH})
 
 find_package(Embree REQUIRED)
 include_directories(${EMBREE_INCLUDE_PATH})
-
-find_package(Blosc REQUIRED)
-include_directories(${BLOSC_INCLUDE_PATH})
 
 find_package(opensubdiv REQUIRED)
 include_directories(${OPENSUBDIV_INCLUDE_PATH})

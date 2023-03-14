@@ -1,0 +1,14 @@
+set(OPENVDB_BUILD_BINARIES OFF)
+set(OPENVDB_ENABLE_UNINSTALL OFF)
+
+set(Tbb_VERSION ${TBB_VERSION})
+set(Tbb_FOUND ${TBB_FOUND})
+
+set(OPENVDB_CORE_SHARED OFF)
+set(OPENVDB_CORE_STATIC ON)
+
+git(OpenVDB AcademySoftwareFoundation/openvdb v10.0.1)
+
+set(OpenVDB_FOUND TRUE)
+
+set(OPENVDB_LIBRARY openvdb_static)

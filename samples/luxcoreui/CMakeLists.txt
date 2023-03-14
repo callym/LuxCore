@@ -105,6 +105,6 @@ else()
 		${GTK3_LIBRARIES}
 		${Boost_LIBRARIES}
 		${PYTHON_LIBRARIES}
-		${OpenVDB_LIBRARIES}
+		${OPENVDB_LIBRARY}
 	)
 endif()
